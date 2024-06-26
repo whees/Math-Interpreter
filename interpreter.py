@@ -2,8 +2,8 @@
 #
 # EOF (end-of-file) token is used to indicate that
 # there is no more input left for lexical analysis
-PLUS, MINUS, MUL, DIV, LPAREN, RPAREN, EOF, POLY, DERIV = (
-    'PLUS', 'MINUS', 'MUL', 'DIV','LPAREN', 'RPAREN', 'EOF', 'POLY', 'DERIV'
+PLUS, MINUS, MUL, LPAREN, RPAREN, EOF, POLY, DERIV = (
+    'PLUS', 'MINUS', 'MUL', 'LPAREN', 'RPAREN', 'EOF', 'POLY', 'DERIV'
 )
 
 
@@ -207,10 +207,6 @@ class Lexer(object):
             if self.current_char == '*':
                 self.advance()
                 return Token(MUL, '*')
-
-            if self.current_char == '/':
-                self.advance()
-                return Token(DIV, '/')
             
             if self.current_char == '(':
                 self.advance()
@@ -277,15 +273,11 @@ class Interpreter(object):
         """term : factor ((MUL | DIV) factor)*"""
         result = self.factor()
 
-        while self.current_token.type in (MUL, DIV):
+        while self.current_token.type in (MUL):
             token = self.current_token
             if token.type == MUL:
                 self.eat(MUL)
                 result = result * self.factor()
-            elif token.type == DIV:
-                self.eat(DIV)
-                result = result / self.factor()
-
 
         return result
 
