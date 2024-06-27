@@ -13,22 +13,26 @@ As of 6/26/2024, supported operations are:
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-* Commands are typed in the terminal beside the 'calc>' prompt and are executed upon the press of 'enter.'
+* Commands are typed in the terminal beside the 'calc>' prompt and will execute when you press 'enter.'
 ```
-calc> (x+1)*(x+1)
+calc> (x+y)*(x-y)
 
 ```
-* The interpreter will output an expanded form of any polynomial manipulations performed in the terminal.
+* The interpreter will output an expanded form of any polynomial algebra performed in the terminal.
 ```
-calc> (x+1)*(x+1)
-xx + 2x + 1
+calc> (x+y)*(x-y)
+xx - yy
 ```
-* A functional derivitive is performed on the polynomial immediatley to the right of an '&' operator.
+* A functional derivitive is performed on the polynomial immediately to the right of an '&' operator.
   In the output, '(&x)' represents the variation of function x.
 ```
-calc> &((x+1)*(x+1))
-2x(&x) + 2(&x)
+calc> &((x+y)*(x-y))
+2x(&x) - 2y(&y)
 ```
+
+## A Word
+The ultimate goal of this project is to construct a symbolic riemannian geometry engine capable of computing the fundamental tensors and Christoffel symbols associated with a given metric. If you
+have anything you'd like to contribute feel free to message me on instagram (@wheesman), linkdin (www.linkedin.com/in/luis-cuevas-73634a1b1), or on here (if github has a message function.)
 
 
 <!-- ACKNOWLEDGMENTS -->
