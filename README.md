@@ -32,7 +32,7 @@ calc> &((x+y)*(x-y))
 
 ## A Word
 The ultimate goal of this project is to construct a symbolic riemannian geometry engine capable of computing the fundamental tensors and Christoffel symbols associated with a given metric. If you
-have anything you'd like to contribute feel free to message me on instagram (@wheesman), linkdin (www.linkedin.com/in/luis-cuevas-73634a1b1), or on here (if github has a message function.)
+have anything you would like to contribute, feel free to message me on instagram (@wheesman), linkdin (www.linkedin.com/in/luis-cuevas-73634a1b1), or on here (if github has a message feature.)
 
 
 <!-- ACKNOWLEDGMENTS -->
