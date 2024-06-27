@@ -87,7 +87,7 @@ class Poly:
         ret = ''
         for n,key in enumerate(self.terms.keys()):
             if n > 0:
-                ret += str(abs(self.terms[key])) if abs(self.terms[key]) != 1 else ''
+                ret += str(abs(self.terms[key])) if abs(self.terms[key]) != 1 or key == () else ''
             else:
                 ret += str(self.terms[key]) if abs(self.terms[key]) != 1 else ''
             
@@ -120,7 +120,7 @@ class Poly:
         ret = Poly()
         
         for key in self.terms.keys():
-            ret = ret + chain(key)
+            ret = ret + chain(key)*Poly({():self.terms[key]})
             
         return ret
 
