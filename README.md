@@ -1,4 +1,4 @@
-# Multilinear Polynomial Interpreter
+# Multivariate Polynomial Interpreter
 
 This code provides an environment to manipulate and differentiate multivariate polynomials.
 
