@@ -7,118 +7,124 @@ PLUS, MINUS, MUL, LPAREN, RPAREN, EOF, POLY, DERIV = (
 )
 
 
+def sort(key):        
+    return tuple(sorted(list(key),reverse = True))
 
+def chain(key):
+    ret = Poly()
+    
+    for string in key:
+        if string[0] == '/':
+            newterm = divide(list(key) + [f'&{string[1:]}',f'/{string[1:]}'])
+            ret = ret + Poly({newterm:-1})
+        else:
+            newterm = divide(list(key) + [f'&{string}',f'/{string}'])
+            ret = ret + Poly({newterm:1})
+           
+    return ret
 
-class poly:
-    def __init__(self, value = 0, vars = None):
-        self.value = value
-        self.vars = {} if vars == None else vars
+def divide(key):
+    keyaslist = list(key)
+    
+    for string in key:
+        if string[0] == '/':
+            if string[1:] in keyaslist:
+                keyaslist.remove(string)
+                keyaslist.remove(string[1:])
+                
+    return sort(keyaslist)
+    
+class Poly:
+    def __init__(self, terms = None):        
+        self.terms = {} if terms == None or type(terms) != dict else terms
+        self.trim()
         
+    def __add__(self,opp):
+        terms = {}
+        
+        for key in self.terms.keys():
+            if key in opp.terms.keys():
+                terms[key] = self.terms[key] + opp.terms[key]
+            else: 
+                terms[key] = self.terms[key]
+                
+        for key in opp.terms.keys():
+            if key not in self.terms.keys():
+                terms[key] = opp.terms[key]
+                
+        return Poly(terms)
+    
+    def __sub__(self,opp):
+        terms = {}
+        
+        for key in self.terms.keys():
+            if key in opp.terms.keys():
+                terms[key] = self.terms[key] - opp.terms[key]
+            else: 
+                terms[key] = self.terms[key]
+                
+        for key in opp.terms.keys():
+            if key not in self.terms.keys():
+                terms[key] = - opp.terms[key]
+                
+        return Poly(terms)
+
+    def __mul__(self,opp):
+        terms = {}
+        
+        for selfkey in self.terms.keys():
+            for oppkey in opp.terms.keys():
+                newkey = sort(list(selfkey) + list(oppkey))
+                
+                if newkey in terms.keys():
+                    terms[newkey] += self.terms[selfkey] * opp.terms[oppkey]
+                else:
+                    terms[newkey] = self.terms[selfkey] * opp.terms[oppkey]
+                    
+        return Poly(terms)
+    
     def __str__(self):
-        string = f'{self.value}' if self.value != 0 else ''
-        for key,value in self.vars.items():
-            if value != 0 and value**2 != 1:
-                sign = '+' if value > 0 else ''
-                string += sign + f'{value}{key}'
-            elif value**2 == 1:
-                sign = '+' if value > 0 else '-'
-                string += sign + f'{key}'
-        
-        if string[0] == '+':
-            string = string[1:]
+        ret = ''
+        for n,key in enumerate(self.terms.keys()):
+            if n > 0:
+                ret += str(abs(self.terms[key])) if abs(self.terms[key]) != 1 else ''
+            else:
+                ret += str(self.terms[key]) if abs(self.terms[key]) != 1 else ''
             
-        return string
+            for string in key:
+                for c,char in enumerate(string):
+                    if char != '&':
+                        ret += char
+                    else:
+                        ret += f'({string[c:]})'
+                        break
+                
+            if n < len(self.terms.keys()) - 1:
+                ret += ' + ' if self.terms[list(self.terms.keys())[n+1]] >= 0 else ' - '
+            
+            
+            
+        return ret
 
     def __repr__(self):
         return self.__str__()
     
-    def __add__(self,opp):
-        ret = poly()
-        ret.value = opp.value + self.value
+    def trim(self):
+        keys = self.terms.copy().keys()
         
-        for key,value in self.vars.items():
-            ret.vars[key] = value
-            if key in opp.vars.keys():
-                ret.vars[key] += opp.vars[key]
-                
-        for key,value in opp.vars.items():
-            if key not in self.vars.keys():
-                ret.vars[key] = opp.vars[key]
-                
-        ret.simplify()
-        return ret
-    
-    def __sub__(self,opp):
-        ret = poly()
-        ret.value = self.value - opp.value
-        
-        for key,value in self.vars.items():
-            ret.vars[key] = value
-            if key in opp.vars.keys():
-                ret.vars[key] -= opp.vars[key]
-                
-        for key,value in opp.vars.items():
-            if key not in self.vars.keys():
-                ret.vars[key] = -opp.vars[key]
-                
-        ret.simplify()
-        return ret
-    
-    def __mul__(self,opp):
-        ret = poly()
-        ret.value = opp.value * self.value
-        
-        for key,value in self.vars.items():
-            ret.vars[key] = opp.value * value
-        
-        for key,value in opp.vars.items():
-            if key in ret.vars.keys():
-                ret.vars[key] += value * self.value
-            else:
-                ret.vars[key] = value * self.value
-            
-        for skey,svalue in self.vars.items():
-            for okey,ovalue in opp.vars.items():
-                keystring = ''.join(sorted(okey + skey))
-                if keystring in ret.vars.keys():
-                    ret.vars[keystring] += svalue * ovalue
-                else:
-                    ret.vars[keystring] = self.vars[skey] * opp.vars[okey]
-                    
-        ret.simplify()
-        return ret
-            
-    def simplify(self):
-        keys = self.vars.copy().keys()
         for key in keys:
-            if self.vars[key] == 0:
-                self.vars.pop(key)
-                
-    def chain(self,key):
-        ret = poly()
-        
-        
-        for x in key:
-            rkey = key.replace(x,'',1) + f'(&{x})'
-            
-            if rkey not in ret.vars.keys():
-                ret.vars[rkey] = 1
-            else: 
-                ret.vars[rkey] += 1
- 
-        return ret
-        
-    def deriv(self):
-        ret = poly()
-        
-        for key,value in self.vars.items():
-            ret = ret + self.chain(key) * poly(value)
-            
-        return ret
-        
-    def copy(self):
-        return poly(self.value,self.vars.copy())
+            if self.terms[key] == 0:
+                self.terms.pop(key)
     
+    def derive(self):
+        ret = Poly()
+        
+        for key in self.terms.keys():
+            ret = ret + chain(key)
+            
+        return ret
+
+
 
 
 class Token(object):
@@ -174,10 +180,10 @@ class Lexer(object):
         while self.current_char is not None and self.current_char.isdigit():
             result += self.current_char
             self.advance()
-        return poly(int(result))
+        return Poly({():int(result)})
     
     def variable(self):
-        result = poly(0,{self.current_char:1})
+        result = Poly({(self.current_char,):1})
         self.advance()
         return result
 
@@ -263,17 +269,17 @@ class Interpreter(object):
             return result
         elif token.type == DERIV:
             self.eat(DERIV)
-            result = self.factor().deriv()
+            result = self.factor().derive()
             return result
         else:
             self.error()
 
 
     def term(self):
-        """term : factor ((MUL | DIV) factor)*"""
+        """term : factor ((MUL) factor)*"""
         result = self.factor()
 
-        while self.current_token.type in (MUL):
+        while self.current_token.type in (MUL,):
             token = self.current_token
             if token.type == MUL:
                 self.eat(MUL)
