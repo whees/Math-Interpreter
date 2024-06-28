@@ -2,41 +2,68 @@
 #
 # EOF (end-of-file) token is used to indicate that
 # there is no more input left for lexical analysis
-PLUS, MINUS, MUL, LPAREN, RPAREN, EOF, POLY, DERIV = (
-    'PLUS', 'MINUS', 'MUL', 'LPAREN', 'RPAREN', 'EOF', 'POLY', 'DERIV'
+from math import gcd
+PLUS, MINUS, MUL, DIV, LPAREN, RPAREN, EOF, FRAC, DERIV = (
+    'PLUS', 'MINUS', 'MUL','DIV', 'LPAREN', 'RPAREN', 'EOF', 'FRAC', 'DERIV'
 )
 
 
-def sort(key):        
-    return tuple(sorted(list(key),reverse = True))
 
-def chain(key):
+def isvalid(key):
+    if len(key) != 2:
+        return False
+    
+    if len(key[0]) != len(key[1]):
+        return False
+    
+    for chars in key[0]:
+        if type(chars) != str:
+            return False
+    
+    for nums in key[1]:
+        if type(nums) != int and type(nums) != float:
+            return False
+    
+    return True
+
+def sort(key):
+    order = sorted(range(len(key[0])), key=lambda k: key[0][k])
+    charsaslist = []
+    numsaslist = []
+    
+    for i in order:
+        charsaslist += [key[0][i]]
+        numsaslist += [key[1][i]]
+        
+    return (tuple(charsaslist),tuple(numsaslist))
+
+def prod(key):
     ret = Poly()
     
-    for string in key:
-        if string[0] == '/':
-            newterm = divide(list(key) + [f'&{string[1:]}',f'/{string[1:]}'])
-            ret = ret + Poly({newterm:-1})
-        else:
-            newterm = divide(list(key) + [f'&{string}',f'/{string}'])
-            ret = ret + Poly({newterm:1})
-           
-    return ret
-
-def divide(key):
-    keyaslist = list(key)
-    
-    for string in key:
-        if string[0] == '/':
-            if string[1:] in keyaslist:
-                keyaslist.remove(string)
-                keyaslist.remove(string[1:])
+    for i in range(len(key[0])):
+        newcharsaslist = [f'&{key[0][i]}']
+        newnumsaslist = [1]
+        
+        for j in range(len(key[0])):
+            if j == i:
+                newcharsaslist += [key[0][j]]
+                newnumsaslist += [key[1][j] - 1]
+            else:
+                newcharsaslist += [key[0][j]]
+                newnumsaslist += [key[1][j]]
                 
-    return sort(keyaslist)
+        newkey = (tuple(newcharsaslist), tuple(newnumsaslist))
+        ret = ret + Poly({newkey:key[1][i]})
+        
+    return ret
+        
+
     
 class Poly:
-    def __init__(self, terms = None):        
-        self.terms = {} if terms == None or type(terms) != dict else terms
+    def __init__(self, terms = None):
+        self.terms = terms if terms != None else {}
+        self.validate()
+        self.annihilate()
         self.trim()
         
     def __add__(self,opp):
@@ -74,7 +101,7 @@ class Poly:
         
         for selfkey in self.terms.keys():
             for oppkey in opp.terms.keys():
-                newkey = sort(list(selfkey) + list(oppkey))
+                newkey = sort([list(selfkey[0]) + list(oppkey[0]),list(selfkey[1]) + list(oppkey[1])])
                 
                 if newkey in terms.keys():
                     terms[newkey] += self.terms[selfkey] * opp.terms[oppkey]
@@ -87,44 +114,245 @@ class Poly:
         ret = ''
         for n,key in enumerate(self.terms.keys()):
             if n > 0:
-                ret += str(abs(self.terms[key])) if abs(self.terms[key]) != 1 or key == () else ''
-            else:
-                ret += str(self.terms[key]) if abs(self.terms[key]) != 1 else ''
-            
-            for string in key:
-                for c,char in enumerate(string):
-                    if char != '&':
-                        ret += char
-                    else:
-                        ret += f'({string[c:]})'
-                        break
-                
-            if n < len(self.terms.keys()) - 1:
-                ret += ' + ' if self.terms[list(self.terms.keys())[n+1]] >= 0 else ' - '
-            
-            
-            
-        return ret
+                ret += ' + ' if self.terms[key] >= 0 else ' - '
+                ret += str(abs(self.terms[key])) if abs(self.terms[key]) != 1 else ''
 
+            else:
+                if abs(self.terms[key]) != 1:
+                    ret += str(self.terms[key]) 
+                elif self.terms[key] == -1:
+                    ret += '-' 
+
+            for i in range(len(key[0])):
+                if key[0][i][0] != '&':
+                    if key[1][i] == 1:
+                        ret += f'{key[0][i]}'
+                    elif key[1][i] != 0:
+                        ret += f'{key[0][i]}^{key[1][i]}'
+                else:
+                    if key[1][i] == 1:
+                        ret += f'({key[0][i]})'
+                    elif key[1][i] != 0:
+                        ret += f'{key[0][i]}^{key[1][i]}'
+                    
+            if len(key[0]) == 0:
+                ret += '1'
+                
+        return ret if ret!= '' else '0'
+    
     def __repr__(self):
         return self.__str__()
     
-    def trim(self):
-        keys = self.terms.copy().keys()
+    def __eq__(self,opp):
+        if opp == None:
+            return False
         
-        for key in keys:
-            if self.terms[key] == 0:
+        for key,value in self.terms.items():
+            if (key,value) not in opp.terms.items():
+                return False
+            
+        for key,value in opp.terms.items():
+            if (key,value) not in self.terms.items():
+                return False
+        
+        return True
+        
+    def validate(self):
+        for key in self.terms.keys():
+            if not isvalid(key):
+                raise Exception(f'invalid key: {key}')
+                
+    def annihilate(self):
+        copyterms = self.terms.copy()
+        
+        for key in copyterms.keys():
+            newcharslist = []
+            newnumslist = []
+            
+            for i in range(len(key[0])):
+                if key[0][i] not in newcharslist:
+                    newcharslist += [key[0][i]]
+                    newnumslist += [key[1][i]]
+                else:
+                    j = newcharslist.index(key[0][i])
+                    newnumslist[j] += key[1][i]
+                    
+            newkey = sort([newcharslist,newnumslist])
+            if newkey != key:
                 self.terms.pop(key)
-    
+                self.terms[newkey] = copyterms[key]
+         
+    def trim(self):
+        copyterms = self.terms.copy()
+        
+        for key in copyterms.keys():
+            newcharslist = []
+            newnumslist = []
+            
+            for i in range(len(key[0])):
+                if key[1][i] != 0:
+                    newcharslist += [key[0][i]]
+                    newnumslist += [key[1][i]]
+                
+            newkey = sort((tuple(newcharslist),tuple(newnumslist)))
+            if newkey != key or copyterms[key] == 0:
+                self.terms.pop(key)
+                if copyterms[key] != 0:
+                    self.terms[newkey] = copyterms[key]
+                    
     def derive(self):
         ret = Poly()
         
         for key in self.terms.keys():
-            ret = ret + chain(key)*Poly({():self.terms[key]})
+            ret = ret + prod(key) * Poly({((),()):self.terms[key]})
             
         return ret
+    
+    def hasfactor(self):
+        rfacs = []
+        rpwrs = []
+        keyslist = list(self.terms.keys())
+        chars = keyslist[0][0]
+        nums = keyslist[0][1]
+        
+        for j in range(len(chars)):
+            n = 1
+            cpow = nums[j]
+            for i in range(1,len(keyslist)):
+                if chars[j] in keyslist[i][0]:
+                    n += 1
+                    ind = keyslist[i][0].index(chars[j])
+                    if abs(keyslist[i][1][ind]) < abs(cpow):
+                        cpow = keyslist[i][1][ind]
+                    continue
+                else:
+                    break
+            if n == len(keyslist):
+                rfacs += [chars[j]]
+                rpwrs += [cpow]
+            
+        return rfacs,rpwrs
+    
+    def factor(self,charnum):
+        char,num = charnum
+        copyterms = self.terms.copy()
+        
+        for key in copyterms.keys():
+            newcharslist = []
+            newnumslist = []
+            
+            if char in key[0]:
+                for i in range(len(key[0])):
+                    newcharslist += [key[0][i]]
+                    newnumslist += [key[1][i] - num] if key[0][i] == char else [key[1][i]]
+                
+                newkey = (tuple(newcharslist),tuple(newnumslist))
+                self.terms.pop(key)
+                self.terms[newkey] = copyterms[key]
+                
+            else:
+                raise Exception(f'bad factor: {char}')
+             
+        self.validate()
+        self.annihilate()
+        self.trim()
+                
+                
+        
+        
 
-
+class Frac:
+    def __init__(self,num = None, den = None):
+        self.num = num if num != None else Poly()
+        self.den = den if den != None else Poly()
+        self.annihilate()
+        
+    def __add__(self,opp):
+        num = self.num * opp.den + opp.num * self.den
+        den = self.den * opp.den
+        
+        return Frac(num,den)
+    
+    def __sub__(self,opp):
+        num = self.num * opp.den - opp.num * self.den
+        den = self.den * opp.den
+        
+        return Frac(num,den)
+    
+    def __mul__(self,opp):
+        num = self.num * opp.num
+        den = self.den * opp.den
+        
+        return Frac(num,den)
+    
+    def __truediv__(self,opp):
+        num = self.num * opp.den
+        den = self.den * opp.num
+        
+        return Frac(num,den)
+    
+    def __str__(self):
+        strnum = str(self.num)
+        strden = str(self.den)
+        lenbar = max([len(strnum),len(strden)])
+        strbar = '-' * lenbar
+        dencush = (lenbar - len(strden)) // 2 * ' '
+        numcush = (lenbar - len(strnum)) // 2 * ' '
+        
+        return numcush + strnum + '\n' + strbar + '\n' + dencush + strden
+        
+    def derive(self):
+        num = self.den * self.num.derive() - self.den.derive() * self.num
+        den = self.den * self.den
+        
+        return Frac(num,den)
+    
+    def annihilate(self):
+        numslist = []
+        dofactor = True
+        
+        for key in self.num.terms.keys():
+            coeff = round(self.num.terms[key],3)
+            if coeff % 1 * 1000 == 0:
+                numslist += [round(self.num.terms[key])]
+            else:
+                dofactor = False
+                break
+            
+        if dofactor:
+            for key in self.den.terms.keys():
+                coeff = round(self.den.terms[key],3)
+                if coeff % 1 * 1000 == 0:
+                    numslist += [round(self.den.terms[key])]
+                else:
+                    dofactor = False
+                    break
+            
+        if dofactor:
+             div = gcd(*numslist)
+        
+        for key in self.num.terms.keys():
+            self.num.terms[key] /= div
+            
+        for key in self.den.terms.keys():
+            self.den.terms[key] /= div
+            
+        numfacs,numpwrs = self.num.hasfactor()
+        denfacs,denpwrs = self.den.hasfactor()
+        
+        for i in range(len(numfacs)):
+            if numfacs[i] in denfacs:
+                ind = denfacs.index(numfacs[i])
+                mpwr = min(denpwrs[ind],numpwrs[i])
+                
+                self.num.factor((numfacs[i],mpwr))
+                self.den.factor((numfacs[i],mpwr))
+                
+   
+        if self.num.terms == self.den.terms:
+            self.num = Poly({((),()):1})
+            self.den = Poly({((),()):1})
+        
 
 
 class Token(object):
@@ -180,12 +408,15 @@ class Lexer(object):
         while self.current_char is not None and self.current_char.isdigit():
             result += self.current_char
             self.advance()
-        return Poly({():int(result)})
+        
+        
+        return Frac(Poly({((),()):int(result)}),Poly({((),()):1}))
     
     def variable(self):
-        result = Poly({(self.current_char,):1})
+        num = Poly({((self.current_char,),(1,)):1})
+        den = Poly({((),()):1})
         self.advance()
-        return result
+        return Frac(num,den)
 
     def get_next_token(self):
         """Lexical analyzer (also known as scanner or tokenizer)
@@ -200,7 +431,7 @@ class Lexer(object):
                 continue
 
             if self.current_char.isdigit():
-                return Token(POLY, self.integer())
+                return Token(FRAC, self.integer())
 
             if self.current_char == '+':
                 self.advance()
@@ -214,6 +445,10 @@ class Lexer(object):
                 self.advance()
                 return Token(MUL, '*')
             
+            if self.current_char == '/':
+                self.advance()
+                return Token(DIV, '/')
+            
             if self.current_char == '(':
                 self.advance()
                 return Token(LPAREN, '(')
@@ -223,7 +458,7 @@ class Lexer(object):
                 return Token(RPAREN, ')')
             
             if self.current_char.isalpha():
-                return Token(POLY, self.variable())
+                return Token(FRAC, self.variable())
             
             if self.current_char == '&':
                 self.advance()
@@ -259,8 +494,8 @@ class Interpreter(object):
         token = self.current_token
         
         
-        if token.type == POLY:
-            self.eat(POLY)
+        if token.type == FRAC:
+            self.eat(FRAC)
             return token.value
         elif token.type == LPAREN:
             self.eat(LPAREN)
@@ -279,11 +514,15 @@ class Interpreter(object):
         """term : factor ((MUL) factor)*"""
         result = self.factor()
 
-        while self.current_token.type in (MUL,):
+        while self.current_token.type in (MUL,DIV):
             token = self.current_token
             if token.type == MUL:
                 self.eat(MUL)
                 result = result * self.factor()
+                
+            if token.type == DIV:
+                self.eat(DIV)
+                result = result / self.factor()
 
         return result
 
