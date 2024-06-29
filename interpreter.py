@@ -134,7 +134,7 @@ class Poly:
                     if key[1][i] == 1:
                         ret += f'({key[0][i]})'
                     elif key[1][i] != 0:
-                        ret += f'{key[0][i]}^{key[1][i]}'
+                        ret += f'({key[0][i]})^{key[1][i]}'
                     
             if len(key[0]) == 0:
                 ret += '1'
@@ -294,13 +294,16 @@ class Frac:
     
     def __str__(self):
         strnum = str(self.num)
-        strden = str(self.den)
+        strden = str(self.den) 
         lenbar = max([len(strnum),len(strden)])
         strbar = '-' * lenbar
         dencush = (lenbar - len(strden)) // 2 * ' '
         numcush = (lenbar - len(strnum)) // 2 * ' '
+        ret = numcush + strnum 
+        if strden != '1':
+            ret += '\n' + strbar + '\n' + dencush + strden
         
-        return numcush + strnum + '\n' + strbar + '\n' + dencush + strden
+        return ret
         
     def derive(self):
         num = self.den * self.num.derive() - self.den.derive() * self.num
