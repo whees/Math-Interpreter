@@ -113,16 +113,14 @@ class Poly:
     def __str__(self):
         ret = ''
         for n,key in enumerate(self.terms.keys()):
-            coeff = int(self.terms[key]) if (self.terms[key] % 1)*1000 == 0 else self.terms[key]
+            coeff = int(self.terms[key]) if int(self.terms[key] % 1*1000) == 0 else self.terms[key]
             if n > 0:
                 ret += ' + ' if coeff >= 0 else ' - '
-                ret += str(abs(coeff)) if abs(self.terms[key]) != 1 else ''
+                ret += str(abs(coeff)) if abs(self.terms[key]) != 1 or len(key[0]) == 0 else ''
 
             else:
-                if abs(coeff) != 1:
-                    ret += str(coeff) 
-                elif coeff == -1:
-                    ret += '-' 
+                ret += '' if coeff >= 0 else '-'
+                ret += str(abs(coeff)) 
 
             for i in range(len(key[0])):
                 if key[0][i][0] != '&':
@@ -136,8 +134,7 @@ class Poly:
                     elif key[1][i] != 0:
                         ret += f'({key[0][i]})^{key[1][i]}'
                     
-            if len(key[0]) == 0:
-                ret += '1'
+            
                 
         return ret if ret!= '' else '0'
     
