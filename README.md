@@ -5,7 +5,7 @@ This code provides an environment to manipulate and differentiate multivariate p
 
 ## Supported Operations
 
-As of 6/26/2024, supported operations are:
+As of 6/28/2024, supported operations are:
 * '+' : addition
 * '-' : subtraction
 * '*' : multiplication
