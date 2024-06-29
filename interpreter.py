@@ -213,6 +213,10 @@ class Poly:
         rfacs = []
         rpwrs = []
         keyslist = list(self.terms.keys())
+        if len(keyslist) < 1:
+            return rfacs,rpwrs
+        
+        
         chars = keyslist[0][0]
         nums = keyslist[0][1]
         
