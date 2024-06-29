@@ -5,29 +5,35 @@ This code provides an environment to manipulate and differentiate multivariate p
 
 ## Supported Operations
 
-As of 6/26/2024, supported operations are:
+As of 6/28/2024, supported operations are:
 * '+' : addition
 * '-' : subtraction
 * '*' : multiplication
+* '/' : division
 * '&' : differentiation
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 * Commands are typed in the terminal beside the 'calc>' prompt and will execute when you press 'enter.'
+The output prints to a new line.
 ```
-calc> (x+y)*(x-y)
-
+calc> (1+x)*(1-x)
+1 - x^2
 ```
-* The interpreter will output an expanded form of any polynomial algebra performed in the terminal.
+* If the output is a fraction, the terminal will print the numerator, a new line of dashes, then a new line with the denominator.
 ```
-calc> (x+y)*(x-y)
-xx - yy
+calc> x/y
+x
+-
+y
 ```
 * A functional derivitive is performed on the polynomial immediately to the right of an '&' operator.
   In the output, '(&x)' represents the variation of function x.
 ```
-calc> &((x+y)*(x-y))
-2x(&x) - 2y(&y)
+calc> &(x/y)
+(&x)y - (&y)x
+-------------
+     y^2
 ```
 
 ## A Word
