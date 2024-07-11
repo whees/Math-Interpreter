@@ -41,7 +41,7 @@ This code provides an environment to manipulate and differentiate multivariate f
 > show(z)
 (x)^(4)
 ```
-* Unassigned variables will be treated as general functions. A functional derivitive is performed on the expression immediately to the right of an '&' operator. In the output, '&[]' represents the variation of function '[]'.
+* A functional derivitive is performed on the expression immediately to the right of an '&' operator. In the output, '&[]' represents the variation of function '[]'.
 ```
 > y=&(x*x)
 > show(y)
