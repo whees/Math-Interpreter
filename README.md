@@ -29,20 +29,20 @@ This code provides an environment to manipulate and differentiate multivariate f
 > show(y)
 (x)^(2)
 ```
-*  Unassigned variables will be treated as general functions. Assigned variables will be automatically substituted in           later operations.
+*  Unassigned variables will be treated as general functions. Assigned variables will be automatically substituted in later operations.
 ```
 > y=x*x
 > z=y*y
 > show(z)
 (x)^(4)
 ```
-* Multiple statements on the same line are separeted by a semi-colon. Multi-statement line will be executed from left to       right.
+* Multiple statements on the same line are separeted by a semi-colon. Multi-statement lines will be executed from left to right.
 ```
 > y=x*x; z=y*y
 > show(z)
 (x)^(4)
 ```
-* Unassigned variables will be treated as general functions. A functional derivitive is performed on the expression            immediately to the right of an '&' operator. In the output, '&[]' represents the variation of function '[]'.
+* Unassigned variables will be treated as general functions. A functional derivitive is performed on the expression immediately to the right of an '&' operator. In the output, '&[]' represents the variation of function '[]'.
 ```
 > y=&(x*x)
 > show(y)
