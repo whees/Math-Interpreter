@@ -22,8 +22,7 @@ This code provides an environment to manipulate and differentiate multivariate f
 ```
 > y=x*x
 ```
-* A variable's assignment can be shown in the console via the 'show' operator. The assignment will be printed
-  to the following line.
+* The assignment of the variable (in parentheses) immediately to the right of a 'show' operator will be shown. The assignment will be printed to the following line.
 ```
 > y=x*x
 > show(y)
