@@ -1,39 +1,64 @@
-# Multivariate Polynomial Interpreter
+# Command Line Calculus Environment
 
-This code provides an environment to manipulate and differentiate multivariate polynomials.
+This code provides an environment to manipulate and differentiate multivariate functions.
 
-
-## Supported Operations
-
-As of 6/28/2024, supported operations are:
-* '+' : addition
-* '-' : subtraction
-* '*' : multiplication
-* '/' : division
-* '&' : differentiation
+## Supported Operations 
+### Algebraic
+* '+'    : addition
+* '-'    : subtraction
+* '*'    : multiplication
+* '/'    : division
+* '&'    : functional differentiation
+* '$'    : partial differentiation
+* 'log'  : natural logarithm
+### Console
+* '='    : assignment
+* 'show' : output to console
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-* Commands are typed in the terminal beside the 'calc>' prompt and will execute when you press 'enter.'
-The output prints to a new line.
+* Variables are assigned via the '=' operator. The function immediately to the right of an '=' operator
+  will be assigned to the variable immedately to the left of the operator. A variable's assignment is simplified upon          construction.
 ```
-calc> (1+x)*(1-x)
-1 - x^2
+> y=x*x
 ```
-* If the output is a fraction, the terminal will print the numerator, a new line of dashes, then a new line with the denominator.
+* A variable's assignment can be shown in the console via the 'show' operator. The assignment will be printed
+  to the following line.
 ```
-calc> x/y
-x
--
-y
+> y=x*x
+> show(y)
+(x)^(2)
 ```
-* A functional derivitive is performed on the polynomial immediately to the right of an '&' operator.
-  In the output, '(&x)' represents the variation of function x.
+*  Unassigned variables will be treated as general functions. Assigned variables will be automatically substituted in           later operations.
 ```
-calc> &(x/y)
-(&x)y - (&y)x
--------------
-     y^2
+> y=x*x
+> z=y*y
+> show(z)
+(x)^(4)
+```
+* Multiple statements on the same line are separeted by a semi-colon. Multi-statement line will be executed from left to       right.
+```
+> y=x*x; z=y*y
+> show(z)
+(x)^(4)
+```
+* Unassigned variables will be treated as general functions. A functional derivitive is performed on the expression            immediately to the right of an '&' operator. In the output, '&[]' represents the variation of function '[]'.
+```
+> y=&(x*x)
+> show(y)
+> (x)*(&x)*(2)
+```
+* A partial derivitive is performed on the expression (in parentheses) immediately to the right of a '$_[]' operator with respect to variable/function '[]'.
+```
+> y=$_x(x*x)
+> show(y)
+(x)*(2)
+```
+* A logarithm of natural base is perormed on the expression (in parentheses) immediately to the right of the 'log' operator.
+```
+> y=$_x(log(x))
+> show(y)
+(x)^(-1)
 ```
 
 ## A Word
@@ -44,4 +69,4 @@ have anything you would like to contribute, feel free to message me on instagram
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* Big shoutout to Ruslan Spivak for the tutorial on building interpreters. A lot of this code comes from their blog post, https://ruslanspivak.com/lsbasi-part1/.
+* Big shoutout to Ruslan Spivak for the tutorial on building interpreters. Their blog post at https://ruslanspivak.com/lsbasi-part1/ is super informative.
