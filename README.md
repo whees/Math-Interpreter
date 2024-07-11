@@ -5,27 +5,16 @@ This code provides an environment to manipulate and differentiate multivariate f
 ## Supported Operations 
 ### Algebraic
 |Symbol  |Function                      |
-|:-----  |:-------------------------    |
 | +      | addition                     |
-|:-----  |:-------------------------    |
 | -      | subtraction                  |
-|:-----  |:-------------------------    |
 | *      | multiplication               |
-|:-----  |:-------------------------    |
 | /      | division                     |
-|:-----  |:-------------------------    |
 | &      | functional differentiation   |
-|:-----  |:-------------------------    |
 | $      | partial differentiation      |
-|:-----  |:-------------------------    |
 | log    | natural logarithm            |
-|:-----  |:-------------------------    |
 ### Console
-|:-----  |:-------------------------    |
 | =      | assignment                   |
-|:-----  |:-------------------------    |
 | show   | output to console            |
-|:-----  |:-------------------------    |
 
 <!-- USAGE EXAMPLES -->
 ## Usage
